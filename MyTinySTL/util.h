@@ -135,6 +135,8 @@ struct pair
 
 
     // implicit constructiable for other type
+    // 构造函数，用于初始化 pair 对象。
+    // 确保 Other1 和 Other2 类型可以构造为 Ty1 和 Ty2，并且它们不能转换为 pair 对象的类型。
     template <class Other1, class Other2,
     typename std::enable_if<
     std::is_constructible<Ty1, Other1>::value &&
@@ -148,10 +150,113 @@ struct pair
 
     }
 
+     // 拷贝赋值操作符
+    pair& operator=(const pair& rhs)
+    {
+        if(this != &rhs)
+        {
+            first = rhs.first;
+            second = rhs.second;
+        }
+        return *this;
+    }
 
+    // 移动赋值操作符，原资源会被释放，设置为未定义值；
+    pair& operator=(pair&& rhs)
+    {
+        if(this != &rhs)
+        {
+            first = mastl::move(rhs.first);
+            second = mastl::move(rhs.second);
+        }
+        return *this;
+    }
 
+    // 拷贝赋值操作符
+    template<class Other1, class Other2>
+    pair& operator=(const pair<Other1, Other2>& rhs)
+    {
+        if(this != &rhs)
+        {
+            first = rhs.first;
+            second = rhs.second;
+        }
+        return *this;
+    }
+
+    // 移动赋值操作符，原资源会被释放，设置为未定义值；
+    template<class Other1, class Other2>
+    pair& operator=(const pair<Other1, Other2>&& rhs)
+    {
+        first = mastl::forward<Other1>(rhs.first);
+        second = mastl::forward<Other2>(rhs.second);
+        return *this;
+    }
+
+    ~pair() = default;
+
+    void swap(pair& other)
+    {
+        if(this != &other)
+        {
+            mastl::swap(first, other.first);
+            mastl::swap(second, other.second);
+        }
+    }
 };
 
+
+// 重载比较操作符 
+template<class Ty1, class Ty2>
+bool operator==(const pair<Ty1, Ty2>& lhs, const pair<Ty1, Ty2>& rhs)
+{
+    return lhs.first == rhs.first && lhs.second == rhs.second;
+} 
+//小于
+template<class Ty1, class Ty2>
+bool operator<(const pair<Ty1, Ty2>& lhs, const pair<Ty1, Ty2>& rhs)
+{
+    return lhs.first < rhs.first || (lhs.first == rhs.first && lhs.second < rhs.second);
+} 
+//不等于
+template<class Ty1, class Ty2>
+bool operator!=(const pair<Ty1, Ty2>& lhs, const pair<Ty1, Ty2>& rhs)
+{
+    return !(lhs == rhs);
+} 
+//大于
+template<class Ty1, class Ty2>
+bool operator>(const pair<Ty1, Ty2>& lhs, const pair<Ty1, Ty2>& rhs)
+{
+    return rhs < lhs;//直接复用上面的小于操作符
+} 
+
+//小于等于
+template<class Ty1, class Ty2>
+bool operator<=(const pair<Ty1, Ty2>& lhs, const pair<Ty1, Ty2>& rhs)
+{
+    return !(rhs > lhs);//直接复用上面的大于操作符
+}
+
+//大于等于
+template<class Ty1, class Ty2>
+bool operator<=(const pair<Ty1, Ty2>& lhs, const pair<Ty1, Ty2>& rhs)
+{
+    return !(lhs < rhs);//直接复用上面的小于操作符
+}
+
+//重载mastl的swap
+template<class Ty1, class Ty2>
+void swap(pair<Ty1, Ty2>& lhs, pair<Ty1, Ty2>& rhs)
+{
+    lhs.swap(rhs);
+}
+// 全局函数，让两个数据成为一个 pair
+template <class Ty1, class Ty2>
+pair<Ty1, Ty2> make_pair(Ty1&& first, Ty2&& second)
+{
+    return pair<Ty1, Ty2>(mastl::forward<Ty1>(first), mastl::forward<Ty2>(second)
+}
 
 };
 
