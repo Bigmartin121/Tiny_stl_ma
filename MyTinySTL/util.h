@@ -4,7 +4,7 @@
 
 #include <cstddef>
 
-#include "type_trails.h"
+#include "type_traits.h"
 
 namespace mastl
 {

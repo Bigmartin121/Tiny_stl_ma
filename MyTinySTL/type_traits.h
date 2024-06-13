@@ -1,9 +1,10 @@
 #ifndef MYTINYSTL_TYPE_TRAITS_H_
 #define MYTINYSTL_TYPE_TRAITS_H_
 
-#include <type_traits>
+// 这个头文件用于提取类型信息
 
-
+// use standard header for type_traits
+#include <type_traits>//编译时对类型进行操作，从而实现编译时类型检查、类型转换、模板特化等功能
 
 //用于提取类型信息
 namespace mastl
@@ -46,4 +47,6 @@ namespace mastl
     
 }// namespace mastl
 //模板类在编译时会被计算，所以它的性能开销相对较低
-#endif
+
+#endif // !MYTINYSTL_TYPE_TRAITS_H_
+
