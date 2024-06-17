@@ -85,6 +85,117 @@ namespace mastl
     {
     };
 
+    //提取、总结出迭代器所具有的独特性质和特点
+    template <class Iterator>
+    struct iterator_traits
+    : public iterator_traits_helper<Iterator, has_iterator_cat<Iterator>::value> {};
+
+    //指针对原生指针的一种特殊化的版本
+    template <class T>
+    struct iterator_traits<T*>
+    {
+        //定义迭代器的类别为随机访问迭代器
+        typedef random_access_iterator_tag          iterator_category;
+        //定义值类型为T
+        typedef T                                   value_type;
+        //定义指针类型为T*
+        typedef T*                                  pointer;
+        //定义引用类型为T&
+        typedef T&                                  reference;
+        //定义差值类型为ptrdiff_t
+        typedef ptrdiff_t                           difference_type;
+    };
+        
+    //定义一个结构体，该结构体模板参数为T，T*
+    template <class T>
+    struct iterator_traits<const T*>
+    {
+        //定义迭代器的类别为随机访问迭代器
+        typedef random_access_iterator_tag          iterator_category;
+        //定义值类型为T
+        typedef T                                   value_type;
+        //定义指针类型为const T*
+        typedef const T*                            pointer;
+        //定义引用类型为const T&
+        typedef const T&                            reference;
+        //定义差值类型为ptrdiff_t
+        typedef ptrdiff_t                           difference_type;
+    };
+
+    //定义一个模板函数，该函数模板参数为T，U，bool
+    template <class T, class U, bool = has_iterator_cat<iterator_traits<T>>::value>
+    struct has_iterator_cat_of
+    : public m_bool_constant<std::is_convertible<
+    //定义一个模板参数，该参数为T的迭代器类别，U的迭代器类别
+    typename iterator_traits<T>::iterator_category, U>::value>
+    {
+    };
+
+
+    // 模板特化，判断T类型是否具有U类型的迭代器标签
+    template <class T, class U>
+    struct has_iterator_cat_of<T, U, false> : m_false_type {};
+
+    // 判断迭代器类型是否为输入迭代器
+    template <class Iter>
+    struct is_input_iterator : public has_iterator_cat_of<Iter, input_iterator_tag>::type {};
+
+    // 判断迭代器类型是否为输出迭代器
+    template <class Iter>
+    struct is_output_iterator : public has_iterator_cat_of<Iter, output_iterator_tag>::type {};
+
+    // 判断迭代器类型是否为正向迭代器
+    template <class Iter>
+    struct is_forward_iterator : public has_iterator_cat_of<Iter, forward_iterator_tag>::type {};
+
+    // 判断迭代器类型是否为双向迭代器
+    template <class Iter>
+    struct is_bidirectional_iterator : public has_iterator_cat_of<Iter, bidirectional_iterator_tag>::type {};
+
+    // 判断迭代器类型是否为随机访问迭代器
+    template <class Iter> 
+    struct is_random_access_iterator : public has_iterator_cat_of<Iter, random_access_iterator_tag>::type {};
+
+    // 判断迭代器类型是否为迭代器
+    template <class Iterator>
+    struct is_iterator :
+    public m_bool_constant<is_input_iterator<Iterator>::value ||
+        is_output_iterator<Iterator>::value>
+    {
+    };
+
+    template <class Iterator>
+    // 获取迭代器的类型
+    typename iterator_traits<Iterator>::iterator_category
+    iterator_category(Iterator)
+    {
+        // 获取迭代器的类型
+        typedef typename iterator_traites<Iterator>::iterator_category Category;
+        // 返回迭代器的类型
+        return Categorty();
+    }
+
+    // 萃取某个迭代器的 distance_type
+    template <class Iterator>
+    typename iterator_traits<Iterator>::difference_type*
+    distance_type(const Iterator&)
+    {
+    // 返回一个指向整型的指针，该整数表示迭代器的距离类型
+    return static_cast<typename iterator_traits<Iterator>::difference_type*>(0);
+    }
+
+    // 萃取某个迭代器的 value_type
+    template <class Iterator>
+    typename iterator_traits<Iterator>::value_type*
+    value_type(const Iterator&)
+    {
+    // 返回一个指向整数的指针，该整数表示迭代器的值类型
+    return static_cast<typename iterator_traits<Iterator>::value_type*>(0);
+    }
+
+
+
+
 }
 
 #endif // MYTINYSTL_ITERATOR_H_
